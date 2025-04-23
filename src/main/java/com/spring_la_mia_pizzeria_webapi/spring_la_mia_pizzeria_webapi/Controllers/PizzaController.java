@@ -63,7 +63,6 @@ public class PizzaController {
             model.addAttribute("pizza",pizza1);
             return "pizza/show";
         }
-
         return "pizza/error";
     }
 

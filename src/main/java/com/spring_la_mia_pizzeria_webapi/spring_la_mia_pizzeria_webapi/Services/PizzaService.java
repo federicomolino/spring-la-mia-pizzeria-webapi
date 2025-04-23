@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PizzaService {
@@ -113,10 +114,17 @@ public class PizzaService {
 
     //Cancello pizza
     public void CancellaPizza(Integer id){
+        //Verifico se esiste l'id passato nel caso lancio eccezione
+        Optional<Pizza> searchIdPizza = pizzaRepository.findById(id);
+        System.out.println(searchIdPizza);
+        if (searchIdPizza.isEmpty() || searchIdPizza == null){
+            throw new IllegalArgumentException("Id passato non valido");
+        }
+
         //Converto id in long
         Long pizzaId = id.longValue();
         List<OffertaSpecial> offerte = offerteSpecialiRepository.findByIdPizza(pizzaId);
-        if (!offerte.isEmpty()){
+        if (offerte != null && !offerte.isEmpty()){
             //Mi guardo le offerte
             for (OffertaSpecial offerta : offerte){
                 //Dissocio le offerte dalla pizza
@@ -124,8 +132,6 @@ public class PizzaService {
             }
             offerteSpecialiRepository.saveAll(offerte);
             offerteSpecialiRepository.deleteAll(offerte);
-        }else {
-            throw new IllegalArgumentException("l'id passato non esiste");
         }
         //Cancello in base id
         pizzaRepository.deleteById(id);
