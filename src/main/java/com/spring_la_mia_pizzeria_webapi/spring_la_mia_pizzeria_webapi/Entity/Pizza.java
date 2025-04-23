@@ -1,5 +1,7 @@
 package com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -35,6 +37,7 @@ public class Pizza {
     }
 
     @OneToMany(mappedBy = "pizza")
+    @JsonManagedReference
     private List<OffertaSpecial> offerta;
 
     @ManyToMany
@@ -43,6 +46,7 @@ public class Pizza {
             joinColumns = @JoinColumn(name = "pizza_id"),
             inverseJoinColumns = @JoinColumn(name = "ingrediente_id")
     )
+    @JsonBackReference
     private List<Ingrediente> ingredienti;
 
     public List<Ingrediente> getIngredienti() {

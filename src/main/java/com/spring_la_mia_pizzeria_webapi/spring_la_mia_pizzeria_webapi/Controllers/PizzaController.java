@@ -1,11 +1,11 @@
 package com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Controllers;
 
-import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity.Ingrediente;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity.OffertaSpecial;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity.Pizza;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Repository.IngredientiRepository;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Repository.OfferteSpecialiRepository;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Repository.Pizze;
+import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Services.PizzaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,11 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,16 +38,14 @@ public class PizzaController {
     @Autowired
     private OfferteSpecialiRepository offerteSpecialiRepository;
 
+    @Autowired
+    private PizzaService pizzaService;
+
     @GetMapping("/pizza")
     public String index(@RequestParam(name = "name" , required = false) String name, Model model){
-        List<Pizza> pizze;
-        if (name == null){
-            pizze = pizzaRepository.findAll();
-        }else {
-            pizze = pizzaRepository.findByNameContainingIgnoreCase(name);
-            if (pizze.isEmpty()){
-                model.addAttribute("errorMessage", "Pizza non trovata");
-            }
+        List<Pizza> pizze = pizzaService.pizze(name);
+        if (pizze.isEmpty()){
+            model.addAttribute("errorMessage", "Pizza non trovata");
         }
         model.addAttribute("list", pizze);
         return "pizza/index";
@@ -89,44 +82,19 @@ public class PizzaController {
                            List<Integer> IngredientiID, @RequestParam(value = "image", required = false) MultipartFile Image,
                            Model model) throws IOException {
 
-        if (bindingResult.hasErrors()){
-            return "pizza/addPizza";
-        }else if (pizzaRepository.existsByName(pizzaForm.getName())) {
-            bindingResult.rejectValue("name", "messageError",
-                    "Nome pizza già presente nel sistema");
+        if (bindingResult.hasErrors()) {
             model.addAttribute("list", ingredientiRepository.findAll());
             return "pizza/addPizza";
         }
         try {
-            //Verifico se viene passato un numero
-            Double.parseDouble(pizzaForm.getName());
-            bindingResult.rejectValue("name", "messageError",
-                    "Non può essere passato un numero");
-            model.addAttribute("list",ingredientiRepository.findAll());
+            pizzaService.AddPizza(pizzaForm, IngredientiID, Image);
+            redirectAttributes.addFlashAttribute("success", "Pizza creata con successo");
+            return "redirect:/pizza";
+        } catch (IllegalArgumentException e) {
+            bindingResult.rejectValue("name", "messageError", e.getMessage());
+            model.addAttribute("list", ingredientiRepository.findAll());
             return "pizza/addPizza";
-        }catch (Exception numberStr){
-            if (IngredientiID != null){
-                //Recupero gli ingredienti e associo id all'ingrediente
-                List<Ingrediente> ingredienti = ingredientiRepository.findAllById(IngredientiID);
-                //collego gli ingredienti alla singola pizza
-                pizzaForm.setIngredienti(ingredienti);
-            }
-            //Gestione dell'immagine
-            if (!Image.isEmpty()){
-                String uploadImg = "src/main/resources/static/";
-                String fileName = Image.getOriginalFilename();
-                Path path = Paths.get(uploadImg + fileName); //diamo il nome dell'immagine caricata al path
-                Files.createDirectories(path.getParent()); // crea la cartella se non esiste
-                //Prende il contenuto del file caricato, lo cìopia nel path, se già presente lo sovrascrive
-                Files.copy(Image.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-
-                pizzaForm.setImgPath("/" + fileName);
-            }
-            //Salvo la pizza a db e torno sull'index
-            pizzaRepository.save(pizzaForm);
-            redirectAttributes.addFlashAttribute("success", "La pizza è stata aggiunta");
         }
-        return "redirect:/pizza";
     }
 
     //Modifica pizza
@@ -146,68 +114,18 @@ public class PizzaController {
                             Model model, BindingResult bindingResult,
                             @RequestParam(value = "ingrediente", required = false) List<Integer> IngredientiID,
                             @RequestParam(value = "image", required = false) MultipartFile Image) throws IOException {
-
-        //Mi salvo l'oggetto e verifico se viene cambiato il nome
-        Pizza p = pizzaRepository.findById(pizzaForm.getId()).get();
-        if (!pizzaForm.getName().equals(p.getName()) || (pizzaForm.getName().trim().equals(""))){
-            bindingResult.rejectValue("name","errorName",
-                    "Il nome non può essere modificato");
-
-        }
-
-//      Se non viene selezioneto nessun ingrendiente creo lista vuota
-        if (IngredientiID == null) {
-            IngredientiID = new ArrayList<>();
-        }
-
         if (bindingResult.hasErrors()){
             model.addAttribute("pizza", pizzaForm);
             return "pizza/editPizza";
         }
-        //Gestione dell'immagine
-        if (!Image.isEmpty()){
-            String uploadImg = "src/main/resources/static/";
-            String fileName = Image.getOriginalFilename();
-            Path path = Paths.get(uploadImg + fileName); //diamo il nome dell'immagine caricata al path
-            Files.createDirectories(path.getParent()); // crea la cartella se non esiste
-            //Prende il contenuto del file caricato, lo cìopia nel path, se già presente lo sovrascrive
-            Files.copy(Image.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-
-            pizzaForm.setImgPath("/" + fileName);
-        }else {
-            pizzaForm.setImgPath(p.getImgPath());
-        }
-
-        //Recupero gli ingredienti e associo id all'ingrediente
-        List<Ingrediente> ingredienti = ingredientiRepository.findAllById(IngredientiID);
-        //collego gli ingredienti alla singola pizza
-        pizzaForm.setIngredienti(ingredienti);
-
-        //salviamo i nuovi dati
-        pizzaForm.setDescription(pizzaForm.getDescription());
-        pizzaForm.setPrice(pizzaForm.getPrice());
-
-        pizzaRepository.save(pizzaForm);
+        pizzaService.EditPizza(pizzaForm, IngredientiID, Image);
         return "redirect:/pizza";
     }
 
     //Cancella pizza
     @PostMapping("pizza/delete/{id}")
     public String DeletePizza(@PathVariable("id") Integer id){
-        //Converto id in long
-        Long pizzaId = id.longValue();
-        List<OffertaSpecial> offerte = offerteSpecialiRepository.findByIdPizza(pizzaId);
-        if (!offerte.isEmpty()){
-            //Mi guardo le offerte
-            for (OffertaSpecial offerta : offerte){
-                //Dissocio le offerte dalla pizza
-                offerta.setPizza(null);
-            }
-            offerteSpecialiRepository.saveAll(offerte);
-            offerteSpecialiRepository.deleteAll(offerte);
-        }
-        //Cancello in base id
-        pizzaRepository.deleteById(id);
+        pizzaService.CancellaPizza(id);
         return "redirect:/pizza";
     }
 }

@@ -1,5 +1,6 @@
 package com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -26,6 +27,7 @@ public class OffertaSpecial {
 
     @ManyToOne
     @JoinColumn(name = "pizza_id", nullable = false)
+    @JsonBackReference
     private Pizza pizza;
 
     public Pizza getPizza() {
