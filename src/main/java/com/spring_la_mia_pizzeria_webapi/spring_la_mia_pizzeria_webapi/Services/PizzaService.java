@@ -3,7 +3,7 @@ package com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Services
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity.Ingrediente;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity.OffertaSpecial;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity.Pizza;
-import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Exception.ExceptionPizzaNotFound;
+import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Exception.ExceptionCustom;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Repository.IngredientiRepository;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Repository.OfferteSpecialiRepository;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Repository.Pizze;
@@ -41,7 +41,7 @@ public class PizzaService {
         }
         //Se non trovo la pizza lancio eccezione
         if (result.isEmpty()){
-            throw new ExceptionPizzaNotFound ("Nome Pizza " + name + " non trovata");
+            throw new ExceptionCustom("Nome Pizza " + name + " non trovata");
         }
         return result;
     }
@@ -124,6 +124,8 @@ public class PizzaService {
             }
             offerteSpecialiRepository.saveAll(offerte);
             offerteSpecialiRepository.deleteAll(offerte);
+        }else {
+            throw new IllegalArgumentException("l'id passato non esiste");
         }
         //Cancello in base id
         pizzaRepository.deleteById(id);
