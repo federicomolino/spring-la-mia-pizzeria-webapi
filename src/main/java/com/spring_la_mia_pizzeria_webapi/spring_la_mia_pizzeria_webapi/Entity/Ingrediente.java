@@ -1,5 +1,6 @@
 package com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -14,6 +15,7 @@ public class Ingrediente {
     private String ingrediente;
 
     @ManyToMany(mappedBy = "ingredienti")
+    @JsonBackReference
     private List<Pizza> pizze;
 
     public List<Pizza> getPizze() {

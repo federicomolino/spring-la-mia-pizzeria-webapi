@@ -13,12 +13,12 @@ import java.util.List;
 @RestController
 @CrossOrigin
 @RequestMapping("/api/pizza")
-public class ListaPizze {
+public class ApiPizze {
 
     @Autowired
     private PizzaService pizzaService;
 
-    public ListaPizze(PizzaService pizzaService){
+    public ApiPizze(PizzaService pizzaService){
         this.pizzaService = pizzaService;
     }
 

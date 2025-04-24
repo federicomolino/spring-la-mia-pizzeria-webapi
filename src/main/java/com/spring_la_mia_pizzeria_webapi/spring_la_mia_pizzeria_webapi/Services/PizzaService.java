@@ -117,7 +117,7 @@ public class PizzaService {
         //Verifico se esiste l'id passato nel caso lancio eccezione
         Optional<Pizza> searchIdPizza = pizzaRepository.findById(id);
         System.out.println(searchIdPizza);
-        if (searchIdPizza.isEmpty() || searchIdPizza == null){
+        if (searchIdPizza.isEmpty()){
             throw new IllegalArgumentException("Id passato non valido");
         }
 

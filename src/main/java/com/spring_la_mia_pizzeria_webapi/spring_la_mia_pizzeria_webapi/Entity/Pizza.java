@@ -1,6 +1,6 @@
 package com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -46,7 +46,7 @@ public class Pizza {
             joinColumns = @JoinColumn(name = "pizza_id"),
             inverseJoinColumns = @JoinColumn(name = "ingrediente_id")
     )
-    @JsonBackReference
+    @JsonIgnore
     private List<Ingrediente> ingredienti;
 
     public List<Ingrediente> getIngredienti() {
