@@ -3,7 +3,6 @@ package com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -23,7 +22,6 @@ public class Pizza {
     private String description;
 
     @NotNull
-    @Min(value = 1, message = "Prezzo inserito non valido")
     private double price;
 
     private String imgPath;

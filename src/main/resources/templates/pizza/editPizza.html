@@ -32,7 +32,7 @@
         </div>
         <div class="mb-3">
           <label class="form-label">Prezzo (Es.8.50)</label>
-          <input type="text" name="price" th:field="*{price}" class="form-control" id="price" required>
+          <input type="number" name="price" th:field="*{price}" class="form-control" id="price" required>
 
           <ul th:if="${#fields.hasErrors('price')}">
             <li th:each="err : ${#fields.errors('price')}" th:text="${err}"

@@ -80,6 +80,8 @@ public class PizzaService {
         Pizza p = pizzaRepository.findById(pizzaForm.getId()).get();
         if (!pizzaForm.getName().equals(p.getName()) || (pizzaForm.getName().trim().equals(""))){
             throw new IllegalArgumentException("Il nome non può essere modificato");
+        } else if (pizzaForm.getPrice()<0) {
+            throw new ArithmeticException("il prezzo non può essere inferiore a 0");
         }
 
         //Se non viene selezioneto nessun ingrendiente creo lista vuota

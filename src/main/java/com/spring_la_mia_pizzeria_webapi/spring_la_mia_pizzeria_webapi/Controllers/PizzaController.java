@@ -113,6 +113,14 @@ public class PizzaController {
                             Model model, BindingResult bindingResult,
                             @RequestParam(value = "ingrediente", required = false) List<Integer> IngredientiID,
                             @RequestParam(value = "image", required = false) MultipartFile Image) throws IOException {
+        Pizza p = pizzaRepository.findById(pizzaForm.getId()).get();
+        if (!pizzaForm.getName().equals(p.getName()) || (pizzaForm.getName().trim().equals(""))){
+            bindingResult.rejectValue("name","errorName",
+                    "Il nome non può essere modificato");
+        } else if (pizzaForm.getPrice() < 0) {
+            bindingResult.rejectValue("price","errorPrice",
+                    "Il prezzo non può essere inferiore a 0");
+        }
         if (bindingResult.hasErrors()){
             model.addAttribute("pizza", pizzaForm);
             return "pizza/editPizza";
