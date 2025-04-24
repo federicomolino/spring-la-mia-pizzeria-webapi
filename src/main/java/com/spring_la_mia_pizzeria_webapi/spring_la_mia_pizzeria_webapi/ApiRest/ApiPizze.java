@@ -4,6 +4,7 @@ import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity.Pi
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Services.PizzaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,13 +19,16 @@ public class ApiPizze {
     @Autowired
     private PizzaService pizzaService;
 
-    //Cerca pizza
+
     @GetMapping
-    public List<Pizza> CercaPizza(@RequestParam(value = "name", required = false) String name){
-        if (pizzaService.pizze(name).isEmpty()){
-            throw new IllegalArgumentException("Nessuna pizza trovata");
+    //ResponseEntity<?> permette di restituire o una lista di pizze o un messaggio d'errore
+    public ResponseEntity<?> cercaPizza(@RequestParam(value = "name", required = false) String name){
+        List<Pizza> pizza = pizzaService.pizze(name);
+        if (pizza.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).
+                    body("Nessuna Pizza trovata");
         }
-        return pizzaService.pizze(name);
+        return ResponseEntity.ok(pizza);
     }
 
     //Cancella pizza
