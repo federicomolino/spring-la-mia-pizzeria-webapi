@@ -3,7 +3,6 @@ package com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Services
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity.Ingrediente;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity.OffertaSpecial;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity.Pizza;
-import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Exception.ExceptionCustom;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Repository.IngredientiRepository;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Repository.OfferteSpecialiRepository;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Repository.Pizze;
@@ -40,10 +39,6 @@ public class PizzaService {
         }else {
             result = pizzaRepository.findByNameContainingIgnoreCase(name);
         }
-        //Se non trovo la pizza lancio eccezione
-        if (result.isEmpty()){
-            throw new ExceptionCustom("Nome Pizza " + name + " non trovata");
-        }
         return result;
     }
 
@@ -52,25 +47,21 @@ public class PizzaService {
         if (pizzaRepository.existsByName(pizzaForm.getName())){
             throw new IllegalArgumentException("Nome pizza già presente nel sistema");
         }
-        try {
-            Double.parseDouble(pizzaForm.getName());
-            throw new IllegalArgumentException("Il nome della pizza non può essere un numero");
-        } catch (NumberFormatException ignored) {
 
-            if (ingredientiID != null && !ingredientiID.isEmpty()) {
-                List<Ingrediente> ingredienti = ingredienteRepository.findAllById(ingredientiID);
-                pizzaForm.setIngredienti(ingredienti);
-            }
-
-            if (image != null && !image.isEmpty()) {
-                String uploadImg = "src/main/resources/static/";
-                String fileName = image.getOriginalFilename();
-                Path path = Paths.get(uploadImg + fileName);
-                Files.createDirectories(path.getParent());
-                Files.copy(image.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-                pizzaForm.setImgPath("/" + fileName);
-            }
+        if (ingredientiID != null && !ingredientiID.isEmpty()) {
+            List<Ingrediente> ingredienti = ingredienteRepository.findAllById(ingredientiID);
+            pizzaForm.setIngredienti(ingredienti);
         }
+
+        if (image != null && !image.isEmpty()) {
+            String uploadImg = "src/main/resources/static/";
+            String fileName = image.getOriginalFilename();
+            Path path = Paths.get(uploadImg + fileName);
+            Files.createDirectories(path.getParent());
+            Files.copy(image.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+            pizzaForm.setImgPath("/" + fileName);
+        }
+
         return pizzaRepository.save(pizzaForm);
     }
 

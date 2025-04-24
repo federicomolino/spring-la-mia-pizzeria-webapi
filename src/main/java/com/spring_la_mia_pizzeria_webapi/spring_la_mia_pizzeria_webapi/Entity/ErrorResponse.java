@@ -1,17 +1,17 @@
 package com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class ErrorResponse {
 
     private String messsage;
     private String path;
-    private LocalDate timeStamp;
+    private LocalDateTime timeStamp;
 
     public ErrorResponse(String messsage, String path){
         this.messsage = messsage;
         this.path = path;
-        this.timeStamp = LocalDate.now();
+        this.timeStamp = LocalDateTime.now();
     }
 
     public String getMesssage() {
@@ -30,11 +30,11 @@ public class ErrorResponse {
         this.path = path;
     }
 
-    public LocalDate getTimeStamp() {
+    public LocalDateTime getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(LocalDate timeStamp) {
+    public void setTimeStamp(LocalDateTime timeStamp) {
         this.timeStamp = timeStamp;
     }
 }

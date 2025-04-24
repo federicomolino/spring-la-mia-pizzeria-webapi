@@ -18,13 +18,12 @@ public class ApiPizze {
     @Autowired
     private PizzaService pizzaService;
 
-    public ApiPizze(PizzaService pizzaService){
-        this.pizzaService = pizzaService;
-    }
-
     //Cerca pizza
     @GetMapping
     public List<Pizza> CercaPizza(@RequestParam(value = "name", required = false) String name){
+        if (pizzaService.pizze(name).isEmpty()){
+            throw new IllegalArgumentException("Nessuna pizza trovata");
+        }
         return pizzaService.pizze(name);
     }
 

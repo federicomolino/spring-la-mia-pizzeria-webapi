@@ -120,6 +120,7 @@ public class PizzaController {
         } else if (pizzaForm.getPrice() < 0) {
             bindingResult.rejectValue("price","errorPrice",
                     "Il prezzo non può essere inferiore a 0");
+            model.addAttribute("list",ingredientiRepository.findAll());
         }
         if (bindingResult.hasErrors()){
             model.addAttribute("pizza", pizzaForm);

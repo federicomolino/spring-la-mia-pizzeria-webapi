@@ -29,11 +29,9 @@ public class OffertaController {
     @GetMapping("/pizza/{id}/offer")
     public String ShowpageOfferta(@PathVariable("id") Integer id, Model model){
         Pizza pizza = pizzaRepository.findById(id).get();
-
         //Associo la pizza all'offerta
         OffertaSpecial offertaSpecial = new OffertaSpecial();
         offertaSpecial.setPizza(pizza);
-
         model.addAttribute("pizza", pizza);
         model.addAttribute("formAdd", offertaSpecial);
         return "pizza/AddEditOfferta";
