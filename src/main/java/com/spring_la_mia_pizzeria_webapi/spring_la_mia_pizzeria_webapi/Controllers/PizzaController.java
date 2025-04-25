@@ -5,6 +5,7 @@ import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity.Pi
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Repository.IngredientiRepository;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Repository.OfferteSpecialiRepository;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Repository.Pizze;
+import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Services.OfferteService;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Services.PizzaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,9 @@ public class PizzaController {
     @Autowired
     private PizzaService pizzaService;
 
+    @Autowired
+    private OfferteService offerteService;
+
     @GetMapping("/pizza")
     public String index(@RequestParam(name = "name" , required = false) String name, Model model){
         List<Pizza> pizze = pizzaService.pizze(name);
@@ -57,8 +61,7 @@ public class PizzaController {
         if (pizza.isPresent()){
             //Mi prendo l'id della pizza che fa riferimento all'offerta e poi lo passo al front
             Pizza pizza1 = pizza.get();
-
-            List<OffertaSpecial> offerte = offerteSpecialiRepository.findByPizza(pizza1);
+            List<OffertaSpecial> offerte = offerteService.showOfferte(pizza1);
             model.addAttribute("offertaSpeciali", offerte);
             model.addAttribute("pizza",pizza1);
             return "pizza/show";

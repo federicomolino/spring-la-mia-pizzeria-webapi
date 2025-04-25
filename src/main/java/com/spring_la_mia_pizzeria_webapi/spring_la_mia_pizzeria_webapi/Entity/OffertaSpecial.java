@@ -30,6 +30,16 @@ public class OffertaSpecial {
     @JsonBackReference
     private Pizza pizza;
 
+    private boolean isScaduta;
+
+    public boolean isScaduta() {
+        return isScaduta;
+    }
+
+    public void setScaduta(boolean scaduta) {
+        isScaduta = scaduta;
+    }
+
     public Pizza getPizza() {
         return pizza;
     }

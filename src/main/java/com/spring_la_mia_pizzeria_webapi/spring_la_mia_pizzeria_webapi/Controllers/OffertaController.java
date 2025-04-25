@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import java.time.LocalDate;
 
 @Controller
-//@RequestMapping("/offer")
 public class OffertaController {
 
     @Autowired
@@ -54,6 +53,10 @@ public class OffertaController {
             bindingResult.rejectValue("fineOfferta","fineOfferta",
                     "La data non può inferiore alla data di inizio");
         }
+        if (offertaSpecial.getTitoloOfferta().length()>30){
+            bindingResult.rejectValue("titoloOfferta","titoloOfferta",
+                    "Lunghezza massimo di 30 caratteri");
+        }
 
         if (bindingResult.hasErrors()){
             //evitiamo che pizzaid sia null
@@ -81,7 +84,6 @@ public class OffertaController {
     //Modifica Offerta
     @GetMapping("/offerta/{id}/offer/edit")
     public String ShowpageEditOfferta(@PathVariable("id") Long idOfferta, Model model){
-
         //Recupero l'offerta tramite id
         OffertaSpecial offertaSpecial = offerteSpecialiRepository.findById(idOfferta).get();
 
@@ -93,6 +95,18 @@ public class OffertaController {
     public String EditPizzaOfferta(@PathVariable("id") Long id,
                                    @Valid @ModelAttribute("formAdd") OffertaSpecial offertaForm,
                                    Model model, BindingResult bindingResult){
+
+        if (offertaForm.getInizioOfferta().isBefore(LocalDate.now())){
+            bindingResult.rejectValue("inizioOfferta","inizioOfferta",
+                    "La data non può essere inferiore ad oggi");
+        } else if (offertaForm.getFineOfferta().isBefore(offertaForm.getInizioOfferta())) {
+            bindingResult.rejectValue("fineOfferta","fineOfferta",
+                    "La data non può inferiore alla data di inizio");
+        }
+        if (offertaForm.getTitoloOfferta().length()>30){
+            bindingResult.rejectValue("titoloOfferta","titoloOfferta",
+                    "Lunghezza massimo di 30 caratteri");
+        }
 
         if (bindingResult.hasErrors()){
             model.addAttribute("formAdd", offertaForm);

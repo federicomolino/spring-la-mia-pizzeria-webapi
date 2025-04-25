@@ -27,7 +27,7 @@
       </div>
     </div>
     <!--Lista Ingredienti principali-->
-    <div class="col-4 mt-5">
+    <div class="col-3 mt-5">
       <h5>Ingredienti</h5>
       <!--nessun ingrediente-->
       <div>
@@ -40,7 +40,7 @@
         </ul>
       </div>
     </div>
-    <div class="col-4 mt-5">
+    <div class="col-5 mt-5">
       <!--Offerte-->
       <div th:if="${offertaSpeciali == null || offertaSpeciali.isEmpty()}" class="row">
         <h4 class="mt-4">Nessuna Offerta presente</h4>
@@ -52,7 +52,11 @@
         <div class="row">
           <ul th:each="offerta : ${offertaSpeciali}">
             <div class="d-flex justify-content-between">
-              <li th:text="${offerta.titoloOfferta}"></li>
+              <li>
+                <span th:if="${offerta.scaduta}" class="text-danger"> Offerta Scaduta:</span>
+                <span th:text="${offerta.titoloOfferta}">Offerta capricciosa</span>
+              </li>
+
               <div class=" d-flex justify-content-end">
                 <a class="btn btn-success btn-sm" th:href="@{/offerta/{id}/offer/edit(id=${offerta.id})}">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
