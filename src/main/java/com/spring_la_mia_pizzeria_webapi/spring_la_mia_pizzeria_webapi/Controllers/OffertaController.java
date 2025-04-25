@@ -4,6 +4,7 @@ import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity.Of
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity.Pizza;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Repository.OfferteSpecialiRepository;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Repository.Pizze;
+import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Services.OfferteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,6 +20,9 @@ import java.time.LocalDate;
 @Controller
 //@RequestMapping("/offer")
 public class OffertaController {
+
+    @Autowired
+    private OfferteService offerteService;
 
     @Autowired
     private OfferteSpecialiRepository offerteSpecialiRepository;
@@ -42,8 +46,7 @@ public class OffertaController {
     @PostMapping("/pizza/{id}/offer")
     public String CreateOfferta(@Valid @ModelAttribute("formAdd") OffertaSpecial offertaSpecial,
                                 BindingResult bindingResult, Model model, @PathVariable Integer id){
-        //recupero id pizza
-        Pizza p = pizzaRepository.findById(id).get();
+
         if (offertaSpecial.getInizioOfferta().isBefore(LocalDate.now())){
             bindingResult.rejectValue("inizioOfferta","inizioOfferta",
                     "La data non può essere inferiore ad oggi");
@@ -54,19 +57,14 @@ public class OffertaController {
 
         if (bindingResult.hasErrors()){
             //evitiamo che pizzaid sia null
+            Pizza p = pizzaRepository.findById(id).get();
             offertaSpecial.setPizza(p);
             model.addAttribute("formAdd", offertaSpecial);
             model.addAttribute("pizza", p);
             return "pizza/AddEditOfferta";
         }
-        //Associo la pizza all'offerta
-        offertaSpecial.setPizza(p);
-        //forzo a creare nuova entità
-        offertaSpecial.setId(null);
+        offerteService.creaOfferta(offertaSpecial, id);
         model.addAttribute("formAdd", offertaSpecial);
-
-        //Salvo
-        offerteSpecialiRepository.save(offertaSpecial);
         return "redirect:/pizza/" + offertaSpecial.getPizza().getId();
     }
 
@@ -75,8 +73,8 @@ public class OffertaController {
     public String DeleteOfferta(@PathVariable("id") Long id){
         OffertaSpecial offertaSpecial = offerteSpecialiRepository.findById(id).get();
         Integer idPizza = offertaSpecial.getPizza().getId();
-        //Cancello in base id
-        offerteSpecialiRepository.deleteById(id);
+//        //Cancello in base id
+        offerteService.cancellaOfferta(id);
         return "redirect:/pizza/" + idPizza;
     }
 
@@ -100,15 +98,10 @@ public class OffertaController {
             model.addAttribute("formAdd", offertaForm);
             return "pizza/modificaOfferta";
         }
-        //Mi recupero l'offerta
-        OffertaSpecial offertaEsistente = offerteSpecialiRepository.findById(id).get();
-        //salviamo i nuovi dati
-        offertaEsistente.setInizioOfferta(offertaForm.getInizioOfferta());
-        offertaEsistente.setFineOfferta(offertaForm.getFineOfferta());
-        offertaEsistente.setTitoloOfferta(offertaForm.getTitoloOfferta());
-        offerteSpecialiRepository.save(offertaEsistente);
 
-        return "redirect:/pizza/" + offertaEsistente.getPizza().getId();
+        OffertaSpecial modificaOfferta = offerteService.modificaOfferta(id, offertaForm);
+        Integer idPizza = modificaOfferta.getPizza().getId();
+        return "redirect:/pizza/" + idPizza;
     }
 }
 
