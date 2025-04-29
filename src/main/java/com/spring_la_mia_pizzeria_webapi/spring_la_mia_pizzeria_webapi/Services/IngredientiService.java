@@ -1,6 +1,7 @@
 package com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Services;
 
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity.Ingrediente;
+import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Entity.Pizza;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Repository.IngredientiRepository;
 import com.spring_la_mia_pizzeria_webapi.spring_la_mia_pizzeria_webapi.Repository.Pizze;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,14 @@ public class IngredientiService {
         if (IngredienteID.isEmpty()){
             throw new IllegalArgumentException("Id passato non valido");
         }
-        ingredientiRepository.deleteById(id_ingrediente);
+
+        //recupero l'oggetto ingrediente
+        Ingrediente ingrediente = IngredienteID.get();
+        //Verifico le pizza su cui è presente l'ingrediente
+        for (Pizza pizza : ingrediente.getPizze()){
+            pizza.getIngredienti().remove(ingrediente);
+            pizzaRepository.save(pizza);
+        }
+        ingredientiRepository.delete(ingrediente);
     }
 }
